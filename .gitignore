@@ -2,7 +2,8 @@
 __pycache__/
 *.py[cod]
 *$py.class
-
+# Folders to avoid
+PAMAP2_Dataset/
 # C extensions
 *.so
 
@@ -50,6 +51,7 @@ coverage.xml
 *.py,cover
 .hypothesis/
 .pytest_cache/
+
 
 # Translations
 *.mo
