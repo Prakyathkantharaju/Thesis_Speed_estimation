@@ -58,31 +58,36 @@ class Speed_model_2(SP):
         if not data_flag:
             IMU_data=self.read_xdf(path)
         else:
-            IMU_data=raw_data
+            IMU_data=np.array(raw_data)
         self.Sim_update(IMU_data[:,:3],IMU_data[:,3:])
 
         split_data=self.simulate_split_data(self.linear_buffer,num_features=3)        
 
         first_run=True
-        data=split_data[:,:,2]
-        first_data=data.pop(0)
+        data=split_data[:,:,2]*100
+        first_data=data[0,:]
 
         if first_run:
             x_dot=self.Velocity(first_data)
             self.state=[x_dot,0.25**2]
             self.filtered_buffer.append(x_dot)
             first_run=False
+        try:
+            for d in data:
+                x_dot=self.Velocity(d)
+                self.state=self.Kalman_1D(self.state,x_dot)
+                self.filtered_buffer.append(self.round_nearest(x_dot,a=0.05))
+                self.TrendFilt(double_filt_flag=False)
+                self.TrendFilt(double_filt_flag=True)
 
-        for d in data:
-            x_dot=self.Velocity(d)
-            self.state=self.Kalman_1D(self.state,x_dot)
-            self.filtered_buffer.append(self.round_nearest(x_dot))
-            self.TrendFilt(double_filt_flag=False)
-            self.TrendFilt(double_filt_flag=True)
+            values={"unfiltered":self.buffer,"kalman":self.filtered_buffer,"trend":self.Trend_buffer,"double":self.speeds}
 
-        values={"unfiltered":self.buffer,"kalman":self.filtered_buffer,"trend":self.Trend_buffer,"double":self.speeds}
+            return values
 
-        return values
+        except:
+
+            values={"unfiltered":self.buffer,"kalman":self.filtered_buffer,"trend":self.Trend_buffer,"double":self.speeds}
+            return values
     
         
 
