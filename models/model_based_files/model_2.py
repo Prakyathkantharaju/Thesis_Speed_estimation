@@ -17,7 +17,7 @@ class Speed_model_2(SP):
         self.linear_buffer=np.empty((self.buffer_length,3))
         self.euler=np.empty((self.buffer_length,3))
         self.buffer_pointer=0
-        self.ahrs.settings=im.Settings(0.55,10,20,5*self.sampling_rate)
+        self.ahrs.settings=im.Settings(0.1,10,20,5*self.sampling_rate)
 
     def update(self,sample):
         self.ahrs.update_no_magnetometer(sample[[0,1,2]],sample[[3,4,5]],1/self.sample_rate)
