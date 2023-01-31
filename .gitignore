@@ -6,7 +6,7 @@ __pycache__/
 PAMAP2_Dataset/
 # C extensions
 *.so
-
+venv/
 # Distribution / packaging
 .Python
 build/
