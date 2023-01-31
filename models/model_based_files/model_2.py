@@ -17,9 +17,10 @@ class Speed_model_2(SP):
         self.linear_buffer=np.empty((self.buffer_length,3))
         self.euler=np.empty((self.buffer_length,3))
         self.buffer_pointer=0
+        self.ahrs.settings=im.Settings(0.55,10,20,5*self.sampling_rate)
 
-    def update(self,linear,gyro):
-        self.ahrs.update_no_magnetometer(linear,gyro,1/self.sample_rate)
+    def update(self,sample):
+        self.ahrs.update_no_magnetometer(sample[[0,1,2]],sample[[3,4,5]],1/self.sample_rate)
         self.linear_buffer[self.buffer_pointer,:]=self.ahrs.linear_acceleration
         self.euler[self.buffer_pointer,:]=self.ahrs.quaternion.to_euler()
         self.buffer_pointer+=1
@@ -31,18 +32,18 @@ class Speed_model_2(SP):
 
         return None
 
-    def Sim_update(self,linear_data,gyro_data):
-        self.sim_length=len(linear_data)
+    def Sim_update(self,data):
+        self.sim_length=len(data)
         if self.sim_length>self.buffer_length:
             self.sim_length=self.buffer_length
             print("Total length of the data is more than buffer length, data length changed to buffer length")
 
         for i in range(self.sim_length):
-            self.update(linear_data[i,:],gyro_data[i,:])
+            self.update(data[i])
 
         return None
 
-    def simulate_split_data(self,data,time_interval=4,split_interval=0.5,num_features=3):
+    def simulate_split_data(self,data,time_interval=2,split_interval=0.5,num_features=3):
 
         length=int(((len(data)/self.sample_rate)-time_interval)/split_interval)
         imu_buffer=np.empty((length,time_interval*self.sample_rate,num_features))
@@ -58,8 +59,10 @@ class Speed_model_2(SP):
         if not data_flag:
             IMU_data=self.read_xdf(path)
         else:
+            
             IMU_data=np.array(raw_data)
-        self.Sim_update(IMU_data[:,:3],IMU_data[:,3:])
+
+        self.Sim_update(IMU_data)
 
         split_data=self.simulate_split_data(self.linear_buffer,num_features=3)        
 
