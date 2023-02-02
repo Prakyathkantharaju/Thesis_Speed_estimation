@@ -4,6 +4,7 @@ __pycache__/
 *$py.class
 # Folders to avoid
 PAMAP2_Dataset/
+Processed_data/
 # C extensions
 *.so
 venv/
@@ -109,7 +110,7 @@ celerybeat.pid
 # Spyder project settings
 .spyderproject
 .spyproject
-
+*.h5
 # Rope project settings
 .ropeproject
 
