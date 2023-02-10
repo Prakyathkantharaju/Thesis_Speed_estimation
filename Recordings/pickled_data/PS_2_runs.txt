@@ -1,0 +1,23 @@
+## Pilot Study 2 Day1:
+run4(1m/s optimization)
+run5(1.5m/s optimization)
+run6(1.25m/s optimization)
+
+## Pilot Study 2 Day2:
+
+1. Unpowered
+   - 1.25(run1)
+   - 1.5(run2)
+   - 1(run3)
+2. Generic(1.25 optimal: parameter=0)
+   - 1.25(run4)
+   - 1.5(run5)
+   - 1(run6)
+3. Optimal
+   - 1.25(run7, parameter = 0)
+   - 1.5(run8, parameter = 0.75)
+   - 1(run9, , parameter = 0.25)
+4. Generic(parameter=0.69)
+   - 1.25(run10)
+   - 1.5(run11)
+   - 1(run12)
