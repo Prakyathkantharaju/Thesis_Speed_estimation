@@ -2,7 +2,7 @@ import torch
 from torch.utils.data import Dataset, DataLoader
 
 class IMU(Dataset):
-    def __init__(self,X, y, size = 400,num_features=1):
+    def __init__(self,X, y, size = 4*148,num_features=9):
         # Initialize data, download, etc.
         # read with numpy or pandas
         
@@ -10,7 +10,7 @@ class IMU(Dataset):
 
         # here the first column is the class label, the rest are the features
         self.x_data = torch.from_numpy(X.reshape(-1,num_features,size)).float() # size [n_samples, n_features]
-        self.y_data = torch.from_numpy(y).float() # size [n_samples, 1]
+        self.y_data = torch.from_numpy(y).long() # size [n_samples, 1]
 
     # support indexing such that dataset[i] can be used to get i-th sample
     def __getitem__(self, index):
