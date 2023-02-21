@@ -6,7 +6,7 @@ import sys,os
 import imufusion as im
 from scipy import signal
 import pandas as pd
-def split(data,label,window=4,interval=0.1,sample_rate=148,vel_pos_flag=True,vert_acc_i=1):
+def split(data,label,window=4,interval=0.3,sample_rate=148,vel_pos_flag=False,vert_acc_i=1):
 
     w_samples =window*sample_rate
     df=pd.DataFrame(data)
@@ -53,8 +53,10 @@ def split(data,label,window=4,interval=0.1,sample_rate=148,vel_pos_flag=True,ver
 
             velocity[i,:,0]=np.ones(w_samples)*x_dot
         X=np.concatenate((X,vel,pos,velocity),axis=2)
+    
+    else:
+        pass
 
-    print(f"Shape of X is {X.shape} \n Label is {Y.shape} ")
         
     return X[10:,:,:],Y[10:]    
 
@@ -62,13 +64,14 @@ def split(data,label,window=4,interval=0.1,sample_rate=148,vel_pos_flag=True,ver
 
 def preprocess():
 
-    map={1:1,2:2,3:0,4:1,5:2,6:0,7:1,8:2,9:0,10:1,11:2,12:0}
+    #map={1:1,2:2,3:0,4:1,5:2,6:0,7:1,8:2,9:0,10:1,11:2,12:0}
     map={10:1,11:1,12:0,13:2}
-    X=np.empty((1,2*200,6))
+    X=np.empty((1,2*200,3))
     Y=np.empty((1))
 
     for i in map.keys():
-        streams,header=xdf.load_xdf(f"../../../Recordings/sub-P001/ses-S001/eeg/sub-P001_ses-S001_task-Default_run-0{i}_eeg.xdf")
+        streams,header=xdf.load_xdf(f"../../../Recordings/sub-P001/sub-P001_ses-S001_task-Default_run-0{i}_eeg.xdf")
+        
         for stream in streams:
             if stream['info']['name'][0]=='polar accel':
                 data=stream['time_series'] 
@@ -80,11 +83,26 @@ def preprocess():
         X=np.concatenate((X,x),axis=0)
         Y=np.concatenate((Y,y),axis=0)
 
+    for i in range(1,14):
+        with open(f"../../../Recordings/sub-P003/pickled_data/{i}.pickle",'rb') as f:
+            data=pickle.load(f)
 
+        x,y=split(data['data'],data['label'],window=2,sample_rate=200,vert_acc_i=0)
+        X=np.concatenate((X,x),axis=0)
+        Y=np.concatenate((Y,y),axis=0)
+    
+    for i in range(2,13):
+        with open(f"../../../Recordings/sub-P002/pickled_data/{i}.pickle",'rb') as f:
+            data=pickle.load(f)
+
+        x,y=split(data['data'],data['label'],window=2,sample_rate=200,vert_acc_i=0)
+        X=np.concatenate((X,x),axis=0)
+        Y=np.concatenate((Y,y),axis=0)
     
 
 
     
+    print(f"Shape of X is {X.shape} \n Label is {Y.shape} ")
     return X,Y
 
 

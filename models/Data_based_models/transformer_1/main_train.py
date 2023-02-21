@@ -20,7 +20,7 @@ import pickle
 
 # local imports
 from dataset import IMU
-from model_2 import CNN_LSTM
+from model2 import CNN_LSTM
 from model import Transformer
 from preprocessing1 import preprocess
 
@@ -29,22 +29,26 @@ from preprocessing1 import preprocess
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 X,Y=preprocess()
-#X=X.reshape(X.shape[0],X.shape[1]*X.shape[2])
-#X=Normalizer().fit_transform(X)
-#X=X.reshape(X.shape[0],8,X.shape[1])
+X=X.reshape(X.shape[0],X.shape[1]*X.shape[2])
+norm=Normalizer()
+norm.fit(X)
+X=norm.transform(X)
+pickle.dump(norm,open('normalizer.pkl','wb'))
+X=X.reshape(X.shape[0],3,400)
+
 X_train, X_test, y_train, y_test = train_test_split(X, Y, test_size=0.35, random_state=42)
 
 test_loss=[]
 train_loss=[]
 test_mse=[]
 train_mse=[]
-train_dataset=IMU(X_train,y_train,size=2*200,num_features=6)
-test_dataset=IMU(X_test,y_test,size=2*200,num_features=6)
+train_dataset=IMU(X_train,y_train,size=2*200,num_features=3)
+test_dataset=IMU(X_test,y_test,size=2*200,num_features=3)
 train_loader=DataLoader(train_dataset,batch_size=64,shuffle=True)
 test_loader=DataLoader(test_dataset,batch_size=64,shuffle=True)
 
 #model=Transformer(input_dims=6).to(device)
-model=CNN_LSTM(input_size=6,num_classes=3,input_length=400)
+model=CNN_LSTM(input_size=3,num_classes=3,input_length=400)
 optimizer = torch.optim.Adam(model.parameters(), lr=3.5e-4)
 criterion = nn.CrossEntropyLoss()
 n_total_steps = len(train_loader)
