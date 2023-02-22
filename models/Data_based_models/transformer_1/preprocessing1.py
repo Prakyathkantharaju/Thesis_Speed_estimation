@@ -3,7 +3,7 @@ import numpy as np
 import torch
 import pickle
 import sys,os
-import imufusion as im
+#import imufusion as im
 from scipy import signal
 import pandas as pd
 def split(data,label,window=4,interval=0.3,sample_rate=148,vel_pos_flag=False,vert_acc_i=1):
