@@ -34,7 +34,7 @@ class CNN_LSTM(nn.Module):
         self.batch3=nn.BatchNorm1d(num_features=128)
         self.dropout2=nn.Dropout(p=dropout_2)
         #self.dense1=nn.Linear(in_features=18*128,out_features=8*128)
-        self.dense1=nn.Linear(in_features=1280,out_features=num_classes)
+        self.dense1=nn.Linear(in_features=128*3,out_features=num_classes)
         self.activation=nn.ReLU()
         self.softmax=nn.Softmax(dim=1)
 
@@ -73,7 +73,7 @@ class CNN_LSTM(nn.Module):
         x=torch.from_numpy(x.reshape(-1,self.input_size,self.input_length)).float()
         x=x.to(self.device)
         y=self.forward(x)
-        return self.softmax(y)
+        return self.activation(y)
 
 if __name__ == '__main__':
     x=torch.randn(10,3,200)

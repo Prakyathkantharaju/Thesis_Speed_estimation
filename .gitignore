@@ -110,7 +110,7 @@ celerybeat.pid
 # Spyder project settings
 .spyderproject
 .spyproject
-*.h5
+
 # Rope project settings
 .ropeproject
 

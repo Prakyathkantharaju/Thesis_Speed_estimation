@@ -34,7 +34,7 @@ norm=Normalizer()
 norm.fit(X)
 X=norm.transform(X)
 pickle.dump(norm,open('normalizer.pkl','wb'))
-X=X.reshape(X.shape[0],3,400)
+X=X.reshape(X.shape[0],3,200)
 
 X_train, X_test, y_train, y_test = train_test_split(X, Y, test_size=0.35, random_state=42)
 
@@ -42,8 +42,8 @@ test_loss=[]
 train_loss=[]
 test_mse=[]
 train_mse=[]
-train_dataset=IMU(X_train,y_train,size=2*200,num_features=3)
-test_dataset=IMU(X_test,y_test,size=2*200,num_features=3)
+train_dataset=IMU(X_train,y_train,size=1*200,num_features=3)
+test_dataset=IMU(X_test,y_test,size=1*200,num_features=3)
 train_loader=DataLoader(train_dataset,batch_size=64,shuffle=True)
 test_loader=DataLoader(test_dataset,batch_size=64,shuffle=True)
 

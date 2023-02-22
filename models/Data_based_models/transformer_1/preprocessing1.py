@@ -66,7 +66,7 @@ def preprocess():
 
     #map={1:1,2:2,3:0,4:1,5:2,6:0,7:1,8:2,9:0,10:1,11:2,12:0}
     map={10:1,11:1,12:0,13:2}
-    X=np.empty((1,2*200,3))
+    X=np.empty((1,1*200,3))
     Y=np.empty((1))
 
     for i in map.keys():
@@ -78,7 +78,7 @@ def preprocess():
         #data=d[:,[j for j in range(45,51)]]
         #data[:,1]=data[:,1]*981
 
-        x,y=split(data,map[i],window=2,sample_rate=200,vert_acc_i=0)
+        x,y=split(data,map[i],window=1,sample_rate=200,vert_acc_i=0)
 
         X=np.concatenate((X,x),axis=0)
         Y=np.concatenate((Y,y),axis=0)
@@ -87,7 +87,7 @@ def preprocess():
         with open(f"../../../Recordings/sub-P003/pickled_data/{i}.pickle",'rb') as f:
             data=pickle.load(f)
 
-        x,y=split(data['data'],data['label'],window=2,sample_rate=200,vert_acc_i=0)
+        x,y=split(data['data'],data['label'],window=1,sample_rate=200,vert_acc_i=0)
         X=np.concatenate((X,x),axis=0)
         Y=np.concatenate((Y,y),axis=0)
     
@@ -95,7 +95,7 @@ def preprocess():
         with open(f"../../../Recordings/sub-P002/pickled_data/{i}.pickle",'rb') as f:
             data=pickle.load(f)
 
-        x,y=split(data['data'],data['label'],window=2,sample_rate=200,vert_acc_i=0)
+        x,y=split(data['data'],data['label'],window=1,sample_rate=200,vert_acc_i=0)
         X=np.concatenate((X,x),axis=0)
         Y=np.concatenate((Y,y),axis=0)
     
