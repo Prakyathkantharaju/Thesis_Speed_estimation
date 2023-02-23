@@ -60,7 +60,7 @@ class CNN_LSTM(nn.Module):
         x=self.activation(x)
         x=self.pool1(x)
         x=self.batch3(x)
-        print(x.shape)
+        #print(x.shape)
         y=self.dense1(x.reshape(x.shape[0],-1))
         # x=self.dropout2(x)
         # x=self.activation(x)

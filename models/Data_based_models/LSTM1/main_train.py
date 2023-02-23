@@ -20,7 +20,7 @@ import pickle
 
 # local imports
 from dataset import IMU
-from model2 import CNN_LSTM
+from model import CNN_LSTM
 #from model import Transformer
 from preprocessing1 import preprocess
 import math
@@ -96,6 +96,7 @@ for epoch in range(num_epochs):
             outputs = model(inputs)
             preds=outputs.numpy()
             preds=np.array([round_nearest(x) for x in preds])
+            preds=np.array([1.25 if i==1.2 else i for i in preds])
             #print(preds)
             preds=torch.from_numpy(preds)
             #_,prediction=torch.max(outputs.data,1)

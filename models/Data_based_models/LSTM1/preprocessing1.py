@@ -3,16 +3,18 @@ import numpy as np
 import torch
 import pickle
 import sys,os
-import imufusion as im
+#import imufusion as im
 from scipy import signal
 import pandas as pd
 def split(data,label,window=4,interval=0.3,sample_rate=148,vel_pos_flag=False,vert_acc_i=1):
+
     if label==0:
-        label=1.0
+        label=1
     elif label==1:
         label=1.25
     elif label==2:
         label=1.5
+
     w_samples =window*sample_rate
     df=pd.DataFrame(data)
     for column in df.columns:
@@ -96,14 +98,45 @@ def preprocess():
         X=np.concatenate((X,x),axis=0)
         Y=np.concatenate((Y,y),axis=0)
     
-    for i in range(2,13):
+    for i in range(2,14):
         with open(f"../../../Recordings/sub-P002/pickled_data/{i}.pickle",'rb') as f:
             data=pickle.load(f)
 
         x,y=split(data['data'],data['label'],window=1,sample_rate=200,vert_acc_i=0)
         X=np.concatenate((X,x),axis=0)
         Y=np.concatenate((Y,y),axis=0)
+
+    for i in range(1,4):
+        with open(f"../../../Recordings/sub-P004/pickled_data/{i}.pickle",'rb') as f:
+            data=pickle.load(f)
+
+        x,y=split(data['data'],data['label'],window=1,sample_rate=200,vert_acc_i=0)
+        X=np.concatenate((X,x),axis=0)
+        Y=np.concatenate((Y,y),axis=0) 
     
+    for i in range(1,14):
+        with open(f"../../../Recordings/sub-P003/aug_data/{i}_augmented.pickle",'rb') as f:
+            data=pickle.load(f)
+        
+        x,y=split(data['data'],data['label'],window=1,sample_rate=200,vert_acc_i=0)
+        X=np.concatenate((X,x),axis=0)
+        Y=np.concatenate((Y,y),axis=0)
+
+    for i in range(2,14):
+        with open(f"../../../Recordings/sub-P002/aug_data/{i}_augmented.pickle",'rb') as f:
+            data=pickle.load(f)
+        
+        x,y=split(data['data'],data['label'],window=1,sample_rate=200,vert_acc_i=0)
+        X=np.concatenate((X,x),axis=0)
+        Y=np.concatenate((Y,y),axis=0)
+    
+    for i in range(1,4):
+        with open(f"../../../Recordings/sub-P004/aug_data/{i}_augmented.pickle",'rb') as f:
+            data=pickle.load(f)
+        
+        x,y=split(data['data'],data['label'],window=1,sample_rate=200,vert_acc_i=0)
+        X=np.concatenate((X,x),axis=0)
+        Y=np.concatenate((Y,y),axis=0)
 
 
     
