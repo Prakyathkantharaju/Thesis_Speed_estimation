@@ -28,9 +28,9 @@ class Canvas():
 
     def plot_data(self,old,model_1,model_2):
         plt.cla()
-        plt.plot(old,label='Actual')
-        plt.plot(model_1,label='LSTM1')
-        plt.plot(model_2,label='LSTM2')
+        plt.plot(old,label='Old Model')
+        plt.plot(model_1,label='Regression_LSTM')
+        plt.plot(model_2,label='Classification_LSTM')
         plt.yticks(np.arange(0.2,1.8,0.2))
         plt.legend()
         plt.pause(0.001)
