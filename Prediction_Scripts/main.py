@@ -57,17 +57,21 @@ def model_2_convert(pred):
         pred=1.25
     elif pred==2:
         pred=1.5
+    elif pred==3:
+        pred=0.5
+    elif pred==4:
+        pred=0.75
      
     return pred
 def prediction():
     acquisition=SetupStreams()
     first_run=True
     prev_time=time.time()   
-    Normalizer=pickle.load(open("../models/Data_based_models/LSTM1/normalizer.pkl","rb"))
+    Normalizer=pickle.load(open("../models/Data_based_models/LSTM3/normalizer.pkl","rb"))
     model1=LSTM1(input_size=3,num_classes=1,input_length=200)
-    model2=LSTM2(input_size=3,num_classes=3,input_length=200)
-    model1.load_state_dict(torch.load("model_10.h5"))
-    model2.load_state_dict(torch.load("model_9.h5"))
+    model2=LSTM2(input_size=3,num_classes=5,input_length=200)
+    model1.load_state_dict(torch.load("New_models/LSTM4_10.h5"))
+    model2.load_state_dict(torch.load("New_models/LSTM3_10.h5"))
     model1.eval()
     model2.eval()
     SRP=SpeedRec(h=110,c=1.5,data_length=400)
