@@ -8,14 +8,15 @@ from lsl_imu import DataInlet,SetupStreams
 import matplotlib.pyplot as plt
 import math
 from sklearn.preprocessing import MinMaxScaler,Normalizer
+sys.path.append("../models/Data_based_models/LSTM1/")
+sys.path.append("../moldels/Data_based_models/LSTM1/")
+sys.path.append("../moldels/Data_based_models/LSTM2/")
 
-sys.path.append("../moldels/Data_based_models/")
-
-
-from LSTM2.model2 import CNN_LSTM as LSTM2
-from LSTM1.model import CNN_LSTM as LSTM1
-from transformer_1.model2 import CNN_LSTM as LSTM3
+from model2 import CNN_LSTM as LSTM2
+from model import CNN_LSTM as LSTM1
+#from transformer_1.model2 import CNN_LSTM as LSTM3
 from Speed_Recognition_3 import SpeedRec 
+
 
 class Canvas():
     def __init__(self):
@@ -43,6 +44,12 @@ def round_nearest(x,a):
             num=1.25
         return num
 
+def split(data,label,window=4,interval=0.3,sample_rate=148,vel_pos_flag=False,vert_acc_i=1):
+    w_samples =window*sample_rate
+    X=np.array([data[-w_samples+i:i] for i in range(w_samples,data.shape[0]-w_samples,int(interval*sample_rate))])
+
+    return X
+
 def model_2_convert(pred):
     if pred==0:
         pred=1
@@ -56,11 +63,11 @@ def prediction():
     acquisition=SetupStreams()
     first_run=True
     prev_time=time.time()   
-    Normalizer=pickle.load(open("../models/Data_based_models/LSTM2/normalizer.pkl","rb"))
+    Normalizer=pickle.load(open("../models/Data_based_models/LSTM1/normalizer.pkl","rb"))
     model1=LSTM1(input_size=3,num_classes=1,input_length=200)
     model2=LSTM2(input_size=3,num_classes=3,input_length=200)
-    model1.load_state_dict(torch.load("../models/Data_based_models/LSTM1/model9.pth"))
-    model2.load_state_dict(torch.load("../models/Data_based_models/LSTM2/model9.pth"))
+    model1.load_state_dict(torch.load("model_10.h5"))
+    model2.load_state_dict(torch.load("model_9.h5"))
     model1.eval()
     model2.eval()
     SRP=SpeedRec(h=110,c=1.5,data_length=400)
@@ -70,15 +77,21 @@ def prediction():
     while True:
         if first_run:
             data=acquisition.get_data(400)
-            first_run=False
+            
             if data.shape[0]>399:
+                first_run=False
+                print(data.shape,'hre')
                 speed=SRP.Output(data[:,0],compare_mode=True,rounding_number=0.25)
-                norm_data=Normalizer.transform(data[-200:])
-                norm_data=norm_data.reshape(1,3,200)
+                X=data.reshape(2,3,200)
+                X=X.reshape(2,600)
+                norm_data=Normalizer.fit_transform(X)
+                #print(norm_data.shape)
+                norm_data=norm_data.reshape(2,3,200)
+                norm_data=norm_data[1,:,:].reshape(1,3,200)
                 prev_time=time.time()
                 with torch.no_grad():
-                    pred1=model1.forward_run(torch.from_numpy(norm_data).float())
-                    pred2=model2(torch.from_numpy(norm_data).float())
+                    pred1=model1.forward_run(norm_data)
+                    pred2=model2.forward_run(norm_data)
                     _,pred2=torch.max(pred2,1)
                     pred1=round_nearest(pred1.item(),0.25)
                     model1_speeds+=[pred1]
@@ -90,12 +103,15 @@ def prediction():
             data=acquisition.get_data(400)
             if (time.time()-prev_time)>0.5:
                 speed=SRP.Output(data[:,0],compare_mode=True,rounding_number=0.25)
-                norm_data=Normalizer.transform(data[-200:])
+                X=data.reshape(2,3,200).reshape(2,600)
+                norm_data=Normalizer.fit_transform(X).reshape(2,3,200)
+                norm_data=norm_data[1,:,:].reshape(1,3,200)
+                #print(norm_data.shape)
                 norm_data=norm_data.reshape(1,3,200)
                 prev_time=time.time()
                 with torch.no_grad():
-                    pred1=model1.forward_run(torch.from_numpy(norm_data).float())
-                    pred2=model2.forward_run(torch.from_numpy(norm_data).float())
+                    pred1=model1.forward_run(norm_data)
+                    pred2=model2.forward_run(norm_data)
                     _,pred2=torch.max(pred2,1)
                     pred1=round_nearest(pred1.item(),0.25)
                     model1_speeds+=[pred1]
@@ -106,7 +122,8 @@ def prediction():
 
 
 
-def main():
-    pass    
+if __name__=="__main__":
+    prediction()
+        
 
 
