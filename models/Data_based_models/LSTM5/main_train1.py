@@ -58,7 +58,7 @@ for fold,(train_idx,val_idx) in enumerate(splits.split(np.arange(len(dataset))))
     train_loader=DataLoader(dataset,batch_size=batch_size,sampler=train_sampler)
     test_loader=DataLoader(dataset,batch_size=batch_size,sampler=test_sampler)
     
-    model=CNN_LSTM()
+    model=CNN_LSTM(num_classes=1)
     model.to(device)
     optimizer=optim.Adam(model.parameters(),lr=3.5e-4)
 

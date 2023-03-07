@@ -107,7 +107,14 @@ def preprocess():
         x,y=split(data['data'],data['label'],window=1,sample_rate=200,vert_acc_i=0)
         X=np.concatenate((X,x),axis=0)
         Y=np.concatenate((Y,y),axis=0) 
-    
+
+    for i in range(9,23):
+        with open(f"../../../Recordings/sub-P005/pickled_data/{i}.pickle",'rb') as f:
+            data=pickle.load(f)
+        x,y=split(data['data'],data['label'],window=1,sample_rate=200,vert_acc_i=0)
+        X=np.concatenate((X,x),axis=0)
+        Y=np.concatenate((Y,y),axis=0)
+
     for i in range(1,14):
         with open(f"../../../Recordings/sub-P003/aug_data/{i}_augmented.pickle",'rb') as f:
             data=pickle.load(f)
@@ -131,11 +138,27 @@ def preprocess():
         x,y=split(data['data'],data['label'],window=1,sample_rate=200,vert_acc_i=0)
         X=np.concatenate((X,x),axis=0)
         Y=np.concatenate((Y,y),axis=0)
+    
+    for i in range(9,23):
+        with open(f"../../../Recordings/sub-P005/aug_data/{i}_augmented.pickle",'rb') as f:
+            data=pickle.load(f)
+        
+        x,y=split(data['data'],data['label'],window=1,sample_rate=200,vert_acc_i=0)
+        X=np.concatenate((X,x),axis=0)
+        Y=np.concatenate((Y,y),axis=0)
 
 
     
     print(f"Shape of X is {X.shape} \n Label is {Y.shape} ")
     X=X.reshape(X.shape[0],X.shape[1]*X.shape[2])
+    df=pd.DataFrame(X)
+    for column in df.columns:
+        if sum(df[column].isna())!=0:
+            print(sum(df[column].isna())/len(df[column]))
+            df[column]=df[column].fillna(method='backfill')
+
+    X=df.to_numpy()
+
     norm=Normalizer()
     norm.fit(X)
     X=norm.transform(X)

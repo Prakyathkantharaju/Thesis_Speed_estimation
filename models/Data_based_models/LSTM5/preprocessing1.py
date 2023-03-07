@@ -9,6 +9,18 @@ from scipy import signal
 import pandas as pd
 def split(data,label,window=4,interval=0.3,sample_rate=148,vel_pos_flag=False,vert_acc_i=1):
 
+    if label==0:
+        label=1.0
+    elif label==1:
+        label=1.25
+    elif label==2:
+        label=1.5
+    elif label==3:
+        label=0.5
+    elif label==4:
+        label=0.75
+    
+    
     w_samples =window*sample_rate
     df=pd.DataFrame(data)
     for column in df.columns:

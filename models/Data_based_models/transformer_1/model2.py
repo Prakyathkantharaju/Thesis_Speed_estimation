@@ -73,7 +73,7 @@ class CNN_LSTM(nn.Module):
         x=torch.from_numpy(x.reshape(-1,self.input_size,self.input_length)).float()
         x=x.to(self.device)
         y=self.forward(x)
-        return self.activation(y)
+        return self.softmax(y)
 
 if __name__ == '__main__':
     x=torch.randn(10,3,200)
