@@ -3,12 +3,13 @@ import torch
 import torch.nn as nn
 from torch.utils.data import Dataset,DataLoader,random_split,SubsetRandomSampler,ConcatDataset
 from sklearn.model_selection import KFold
-
+#import wandb 
+#wandb.login()
 
 def train_epoch(model,device,dataloader,loss_fn,optimzer):
     train_loss,train_correct=0.0,0
     model.train()
-
+#    wandb.watch(model,loss_fn,log="all",log_freq=10)
     for images,labels in dataloader:
 
         images,labels=images.to(device),labels.to(device)

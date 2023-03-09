@@ -14,6 +14,7 @@ sys.path.append("../moldels/Data_based_models/LSTM2/")
 import pylsl
 from model2 import CNN_LSTM as LSTM2
 from model import CNN_LSTM as LSTM1
+from model3 import CNN_LSTM as LSTM3
 #from transformer_1.model2 import CNN_LSTM as LSTM3
 from Speed_Recognition_3 import SpeedRec 
 
@@ -83,8 +84,8 @@ def speed_2_label(pred):
 
 def streams():
     info_old=pylsl.stream_info('old','Marker',1,0,'float32')
-    info_new=pylsl.stream_info('regression','Marker',1,0,'float32')
-    info_new2=pylsl.stream_info('classification','Marker',1,0,'float32')
+    info_new=pylsl.stream_info('0.5 s model','Marker',1,0,'float32')
+    info_new2=pylsl.stream_info('1 s model','Marker',1,0,'float32')
     outlet_old=pylsl.stream_outlet(info_old)
     outlet_new=pylsl.stream_outlet(info_new)
     outlet_new2=pylsl.stream_outlet(info_new2)
@@ -95,11 +96,13 @@ def prediction():
     acquisition=SetupStreams()
     first_run=True
     prev_time=time.time()   
-    Normalizer=pickle.load(open("../models/Data_based_models/LSTM3/normalizer.pkl","rb"))
-    model1=LSTM1(input_size=3,num_classes=1,input_length=200)
+    Normalizer=pickle.load(open("../models/Data_based_models/LSTM6/normalizer.pickle","rb"))
+    model1=LSTM3(input_size=3,num_classes=5,input_length=100)
     model2=LSTM2(input_size=3,num_classes=6,input_length=200)
-    model1.load_state_dict(torch.load("New_models/LSTM4_10.h5"))
+    #model3=LSTM3(input_size=3,num_classes=5,input_length=100)
+    model1.load_state_dict(torch.load("New_models/model_3_14.h5"))
     model2.load_state_dict(torch.load("New_models/model_0_7.h5"))
+    
     model1.eval()
     model2.eval()
     SRP=SpeedRec(h=110,c=1.5,data_length=400)
@@ -128,8 +131,10 @@ def prediction():
                     pred1=model1.forward_run(norm_data)
                     pred2=model2.forward_run(norm_data)
                     _,pred2=torch.max(pred2,1)
-                    pred1=round_nearest(pred1.item(),0.25)
-                    model1_speeds+=[pred1]
+                    _,pred1=torch.max(pred1,1)
+                    num1=pred1.detach().cpu()
+                    #pred1=round_nearest(pred1.item(),0.25)
+                    model1_speeds+=[model_2_convert(num1)]
                     num=pred2.detach().cpu()
                     model2_speeds+=[model_2_convert(num)]
                     chart.plot_data(SRP.speeds[-15:],model1_speeds[-15:],model2_speeds[-15:])
@@ -146,16 +151,20 @@ def prediction():
                 norm_data=norm_data.reshape(1,3,200)
                 prev_time=time.time()
                 with torch.no_grad():
-                    pred1=model1.forward_run(norm_data)
+                    out1=model1.forward_run(norm_data)
                     out2=model2.forward_run(norm_data)
+                    _,pred1=torch.max(out1,1)
                     _,pred2=torch.max(out2,1)
-                    print(out2[0,pred2])
+                    #print(out2[0,pred2])
                     if out2[0][pred2]<0.95:
                         pred2=speed_2_label(model2_speeds[-1])
                         print('here')
-                
-                    pred1=round_nearest(pred1.item(),0.25)
-                    model1_speeds+=[pred1]
+                    if out1[0][pred1]<0.95:
+                        pred1=speed_2_label(model1_speeds[-1])
+                        print('here')
+                    #pred1=round_nearest(pred1.item(),0.25)
+                    num1=pred1.detach().cpu()
+                    model1_speeds+=[model_2_convert(num1)]
                     num=pred2.detach().cpu()
                     model2_speeds+=[model_2_convert(num)]
                     chart.plot_data(SRP.speeds[-15:],model1_speeds[-15:],model2_speeds[-15:])
