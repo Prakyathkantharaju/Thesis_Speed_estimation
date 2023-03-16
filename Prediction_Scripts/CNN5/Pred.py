@@ -66,7 +66,7 @@ class Prediction():
     def predict(self,data):
         self.model.eval()
         with torch.no_grad():
-            output=model.forward_run(data)
+            output=self.model.forward_run(data)
         
         return output.reshape((-1)).to_numpy()
 
@@ -77,14 +77,14 @@ class Prediction():
                     data=self.acquisition.get_data(200)
                     output=self.predict(data)
                     self.buffer.append(self.round_nearest(output,r_number))
-                    self.state=[output,0.1**2]
+                    state=[output,0.1**2]
                     self.chart.plot(self.buffer[-15:])
 
                 else:
                     data=self.acquisition.get_data(200)
                     output=self.predict(data)
-                    sate=self.kalman(state,output[0])
-                    self.buffer.append(self.round_nearest(state[0],r_number))
+                    state=self.kalman(state,output[0])
+                    self.buffer.append(self.round_nearest(self.state[0],r_number))
                     self.chart.plot(self.buffer[-15:])
             except KeyboardInterrupt:
                 print("Ending Speed Estimation")
