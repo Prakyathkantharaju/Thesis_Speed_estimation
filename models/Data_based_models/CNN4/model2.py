@@ -107,7 +107,11 @@ class CNN(nn.Module):
         return self.activation(y)
 
 
-        
+if __name__=="__main__":
+    model=CNN(num_classes=1)
+    model.load_state_dict(torch.load("model_saves/model_1_15.h5"))
+    torch.onnx.export(model,torch.randn(1,3,200),"model.onnx",export_params=True,opset_version=10,do_constant_folding=True,input_names=['input'],output_names=['output'],dynamic_axes={'input' : {0 : 'batch_size'},'output' : {0 : 'batch_size'}})
+    
 
 
         
