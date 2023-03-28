@@ -12,7 +12,7 @@ from model2 import CNN
 from lsl_imu import DataInlet,SetupStreams
 
 class Prediction():
-    def __init__(self,walking_index=2):
+    def __init__(self,walking_index=1):
         self.buffer=[]
         self.filtered_buffer=[]
         self.walking_index=walking_index
@@ -25,12 +25,12 @@ class Prediction():
 
     def load_model(self):
         model = CNN(input_features=3,input_length=200,num_classes=1)
-        model.load_state_dict(torch.load('../../models/Data_based_models/CNN4/model_saves/model_3_19.h5'))
+        model.load_state_dict(torch.load('models/Data_based_models/CNN4/model_saves/model_3_19.h5'))
         model.eval()
         return model
     
     def load_normalizer(self):
-        normalizer=pickle.load(open('../../models/Data_based_models/CNN4/normalizer.pickle','rb'))
+        normalizer=pickle.load(open('models/Data_based_models/CNN4/normalizer.pickle','rb'))
         return normalizer
     
     def get_data(self,acquisition,normalizer,data_length=200):
@@ -65,8 +65,9 @@ class Prediction():
         if data is None:
             return 0
         pred=self.predict(model,data)
-        self.buffer.append(self.round_nearest(pred))
+        self.buffer.append(pred)
         if Activity_pred==self.walking_index:
+            #return pred
             if len(self.filtered_buffer)==0:
                 self.filtered_buffer.append(pred)
                 self.state=[pred,0.1**2]

@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 import pylsl
 import sys,os
 import pickle
+import time
 
 sys.path.append('models/Activity_recognition/CNN1/')
 sys.path.append('Prediction_Scripts/polar_utils/')
@@ -31,7 +32,7 @@ class prediction():
         self.mean_stand = np.array([0,0,0])
         model = NeuralNet(input_size, hidden_size, num_classes,dropout_rate).to(self.device)
 
-        MODEL_PATH = '../../models/Activity_recognition/CNN1/model_1_57_.h5'
+        MODEL_PATH = 'models/Activity_recognition/CNN1/model_1_57_.h5'
 
         model.load_state_dict(torch.load(MODEL_PATH,  map_location=torch.device('cpu')))
         model.to(self.device)
@@ -40,6 +41,7 @@ class prediction():
         self.model = model
 
         self.acquisition = SetupStreams()
+        self.first_flag = True
         # acquisition
         # sys.exit()
 
@@ -59,9 +61,9 @@ class prediction():
 
     def predict(self):
         prob_value = self.slider.value() / 100
-        data = self.acquisition.get_data(200)
+        data = self.acquisition.get_data(200)            
         data = data - self.mean_stand 
-        print("data",data.shape, data.dtype,self.mean_stand)
+        #print("data",data.shape, data.dtype,self.mean_stand)
         output = self.model.forward_run(data)
         _, max_predicted = torch.max(output.data, 1)
         probability_prediction = []
