@@ -8,13 +8,15 @@ from lsl_imu import DataInlet,SetupStreams
 import matplotlib.pyplot as plt
 import math
 from sklearn.preprocessing import MinMaxScaler,Normalizer
-sys.path.append("../models/Data_based_models/LSTM1/")
-sys.path.append("../moldels/Data_based_models/LSTM1/")
-sys.path.append("../moldels/Data_based_models/LSTM2/")
+#sys.path.append("../models/Data_based_models/LSTM1/")
+#sys.path.append("../moldels/Data_based_models/LSTM1/")
+#sys.path.append("../moldels/Data_based_models/LSTM2/")
+
+sys.path.append('CNN_models/')
 import pylsl
-from model2 import CNN_LSTM as LSTM2
-from model import CNN_LSTM as LSTM1
-from model3 import CNN_LSTM as LSTM3
+from model2 import CNN as CNN2
+from model import CNN as CNN1
+#from model3 import CNN_LSTM as LSTM3
 #from transformer_1.model2 import CNN_LSTM as LSTM3
 from Speed_Recognition_3 import SpeedRec 
 
@@ -30,26 +32,28 @@ class Canvas():
     def plot_data(self,old,model_1,model_2):
         plt.cla()
         plt.plot(old,label='Old Model')
-        plt.plot(model_1,label='Regression_LSTM')
-        plt.plot(model_2,label='Classification_LSTM')
+        plt.plot(model_1,label='CNN 1 s')
+        plt.plot(model_2,label='CNN 2 s')
         plt.yticks(np.arange(0.2,1.8,0.2))
         plt.legend()
         plt.pause(0.001)
 
-def round_nearest(x,a):
-    if math.isnan((x / a) * a):
-        return 0
-    else:
-        num=np.round(np.round(x / a) * a, -int(math.floor(math.log10(a))))
-        if num==1.2:
-            num=1.25
-        return num
+def round_nearest(x,a=0.01):
+    return np.round(np.round(x/a)*a,2)
 
 def split(data,label,window=4,interval=0.3,sample_rate=148,vel_pos_flag=False,vert_acc_i=1):
     w_samples =window*sample_rate
     X=np.array([data[-w_samples+i:i] for i in range(w_samples,data.shape[0]-w_samples,int(interval*sample_rate))])
 
     return X
+
+def Kalman_1D(state,measurement,process_var=0.01**2,measurement_var=0.05**2):
+        estimate=[[],[]]
+        state[0],state[1]=state[0]+0,state[1]+process_var
+        estimate[0],estimate[1]=(state[1]*measurement+measurement_var*state[0])/(state[1]+measurement_var),(state[1]*measurement_var)/(state[1]+measurement_var)
+        state=estimate
+
+        return state
 
 def model_2_convert(pred):
     if pred==0:
@@ -97,11 +101,11 @@ def prediction():
     first_run=True
     prev_time=time.time()   
     Normalizer=pickle.load(open("../models/Data_based_models/LSTM6/normalizer.pickle","rb"))
-    model1=LSTM3(input_size=3,num_classes=5,input_length=100)
-    model2=LSTM2(input_size=3,num_classes=6,input_length=200)
+    model1=CNN1(num_classes=1,input_length=200)
+    model2=CNN2(num_classes=1,input_length=100)
     #model3=LSTM3(input_size=3,num_classes=5,input_length=100)
-    model1.load_state_dict(torch.load("New_models/model_3_14.h5"))
-    model2.load_state_dict(torch.load("New_models/model_0_7.h5"))
+    model1.load_state_dict(torch.load("models/Data_based_models/CNN4/model_saves/model_0_18.h5"))
+    model2.load_state_dict(torch.load("models/Data_based_models/CNN7/model_saves/model_3_29.h5"))
     
     model1.eval()
     model2.eval()
@@ -129,15 +133,17 @@ def prediction():
                 norm_data1=norm_data.reshape(2,3,100)[1,:,:].reshape(1,3,100)
                 prev_time=time.time()
                 with torch.no_grad():
-                    pred1=model1.forward_run(norm_data1)
-                    pred2=model2.forward_run(norm_data)
-                    _,pred2=torch.max(pred2,1)
-                    _,pred1=torch.max(pred1,1)
+                    pred1=model1.forward_run(norm_data)
+                    pred2=model2.forward_run(norm_data1)
+                    #_,pred2=torch.max(pred2,1)
+                    #_,pred1=torch.max(pred1,1)
                     num1=pred1.detach().cpu()
                     #pred1=round_nearest(pred1.item(),0.25)
-                    model1_speeds+=[model_2_convert(num1)]
+                    model1_speeds+=[round_nearest(num1)]
                     num=pred2.detach().cpu()
-                    model2_speeds+=[model_2_convert(num)]
+                    model2_speeds+=[round_nearest(num)]
+                    state1=[num1,0.1**2]
+                    state2=[num,0.1**2]
                     chart.plot_data(SRP.speeds[-15:],model1_speeds[-15:],model2_speeds[-15:])
                     print(f"old:{SRP.speeds[-1]} new:{model1_speeds[-1]} new2:{model2_speeds[-1]}")
         else:
@@ -153,22 +159,22 @@ def prediction():
                 norm_data=norm_data.reshape(1,3,200)
                 prev_time=time.time()
                 with torch.no_grad():
-                    out1=model1.forward_run(norm_data1)
-                    out2=model2.forward_run(norm_data)
-                    _,pred1=torch.max(out1,1)
-                    _,pred2=torch.max(out2,1)
+                    out1=model1.forward_run(norm_data)
+                    out2=model2.forward_run(norm_data1)
+                    #_,pred1=torch.max(out1,1)
+                    #_,pred2=torch.max(out2,1)
                     #print(out2[0,pred2])
-                    if out2[0][pred2]<0.95:
-                        pred2=speed_2_label(model2_speeds[-1])
-                        print('here')
-                    if out1[0][pred1]<0.95:
-                        pred1=speed_2_label(model1_speeds[-1])
-                        print('here')
                     #pred1=round_nearest(pred1.item(),0.25)
                     num1=pred1.detach().cpu()
-                    model1_speeds+=[model_2_convert(num1)]
+                    state1=Kalman_1D(state1,num1)
+                    model1_speeds+=[round_nearest(state1[0])]
                     num=pred2.detach().cpu()
-                    model2_speeds+=[model_2_convert(num)]
+                    state2=Kalman_1D(state2,num)
+                    model2_speeds+=[round_nearest(state2[0])]
+
+#                    model1_speeds+=[model_2_convert(num1)]
+#                    num=pred2.detach().cpu()
+#                    model2_speeds+=[model_2_convert(num)]
                     chart.plot_data(SRP.speeds[-15:],model1_speeds[-15:],model2_speeds[-15:])
                     print(f"old:{SRP.speeds[-1]} new:{model1_speeds[-1]} new2:{model2_speeds[-1]}")
         if len(SRP.speeds)>0 and flag:
