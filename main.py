@@ -69,15 +69,14 @@ class App():
         return index[0]
     
     def main_pred(self):
-        data=self.act_pred.acquisition.get_data(200)
         if self.first_flag:
+            data=self.act_pred.acquisition.get_data(200)
             if data.shape[0]<200:
                 return None
             self.first_flag=False
         act_index=self.act_out()
         speed=self.walking_pred.output(self.walking_pred.model,self.walking_pred.normalizer,self.walking_pred.acquisition,act_index)
         self.walk_buffer.append(speed)
-
         self.ui.figure1.clear()
         ax=self.ui.figure1.add_subplot(111)
         ax.plot(self.walk_buffer[-15:])
