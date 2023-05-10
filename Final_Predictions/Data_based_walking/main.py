@@ -24,7 +24,7 @@ class Prediction():
 
 
     def load_model(self):
-        model = CNN(input_features=3,input_length=200,num_classes=1)
+        model = CNN(input_features=1,input_length=200,num_classes=1)
         model.load_state_dict(torch.load('models/Data_based_models/CNN9/model_saves/model_0_39.h5'))
         model.eval()
         return model
