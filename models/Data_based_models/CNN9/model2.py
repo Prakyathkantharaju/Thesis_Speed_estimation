@@ -60,6 +60,12 @@ class CNN(nn.Module):
 
 
         self.softmax=nn.Softmax(dim=1)
+        self.l1=None
+        self.l2=None
+        self.l3=None
+        self.l4=None
+        self.l5=None
+
 
 
         
@@ -69,27 +75,31 @@ class CNN(nn.Module):
         x=self.batchnorm1(x)
         x=self.activation(x)
         x=self.maxpool1(x)
+        self.l1=x
 
         x=self.conv2(x)
         x=self.batchnorm2(x)
         x=self.activation(x)
         x=self.maxpool1(x)
+        self.l2=x
 
         x=self.conv3(x)
         x=self.batchnorm3(x)
         x=self.activation(x)
         x=self.maxpool1(x)
+        self.l3=x
 
         x=self.conv4(x)
         x=self.batchnorm4(x)
         x=self.activation(x)
         x=self.maxpool1(x)
+        self.l4=x
 
         x=self.conv5(x)
         x=self.batchnorm5(x)
         x=self.activation(x)
         x=self.maxpool1(x)
-
+        self.l5=x
         #print(x.shape)
         x=x.reshape((-1,x.shape[1]*x.shape[2]))
         x=self.dense1(x)

@@ -127,6 +127,26 @@ def preprocess():
         X=np.concatenate((X,x),axis=0)
         Y=np.concatenate((Y,y),axis=0)
 
+    for i in range(2,13):
+        with open(f"../../../Recordings/sub-P006/pickled_data/Session1/{i}.pickle",'rb') as f:
+            data=pickle.load(f)
+        x,y=split(data['data'],data['label'],window=1,sample_rate=200,vert_acc_i=0)
+        X=np.concatenate((X,x),axis=0)
+        Y=np.concatenate((Y,y),axis=0)
+    for i in range(4,15):
+        with open(f"../../../Recordings/sub-P007/pickled_data/Session_2/{i}.pickle",'rb') as f:
+            data=pickle.load(f)
+        x,y=split(data['data'],data['label'],window=1,sample_rate=200,vert_acc_i=0)
+        X=np.concatenate((X,x),axis=0)
+        Y=np.concatenate((Y,y),axis=0)
+
+    for i in range(9,23):
+        with open(f"../../../Recordings/sub-P005/pickled_data/{i}.pickle",'rb') as f:
+            data=pickle.load(f)
+        x,y=split(data['data'],data['label'],window=1,sample_rate=200,vert_acc_i=0)
+        X=np.concatenate((X,x),axis=0)
+        Y=np.concatenate((Y,y),axis=0)
+
     for i in range(1,14):
         with open(f"../../../Recordings/sub-P003/aug_data/{i}_augmented.pickle",'rb') as f:
             data=pickle.load(f)

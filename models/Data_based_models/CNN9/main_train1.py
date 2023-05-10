@@ -89,5 +89,6 @@ for fold,(train_idx,val_idx) in enumerate(splits.split(np.arange(len(dataset))))
 
             pickle.dump(history,open('history.pickle','wb'))
 
-            if epoch>1 and test_acc>=history['test_acc'][-2]:
+            if epoch>15 and test_loss<=0.0019:
+
                 torch.save(model.state_dict(),f'model_{fold}_{epoch}.h5') 
