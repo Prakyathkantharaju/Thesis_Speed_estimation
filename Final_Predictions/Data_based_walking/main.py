@@ -5,7 +5,7 @@ import pylsl
 import sys,os
 import pickle
 
-sys.path.append('models/Data_based_models/CNN4/')
+sys.path.append('models/Data_based_models/CNN9/')
 sys.path.append('Prediction_Scripts/polar_utils/')
 
 from model2 import CNN
@@ -25,12 +25,12 @@ class Prediction():
 
     def load_model(self):
         model = CNN(input_features=3,input_length=200,num_classes=1)
-        model.load_state_dict(torch.load('models/Data_based_models/CNN4/model_saves/model_3_19.h5'))
+        model.load_state_dict(torch.load('models/Data_based_models/CNN9/model_saves/model_0_39.h5'))
         model.eval()
         return model
     
     def load_normalizer(self):
-        normalizer=pickle.load(open('models/Data_based_models/CNN4/normalizer.pickle','rb'))
+        normalizer=pickle.load(open('models/Data_based_models/CNN9/normalizer.pickle','rb'))
         return normalizer
     
     def get_data(self,acquisition,normalizer,data_length=200):
@@ -38,7 +38,8 @@ class Prediction():
         if data.shape[0]!=data_length:
             return None
         data=normalizer.transform(data.reshape(1,-1))
-        return data.reshape(1,3,data_length)
+        data=data.reshape(2,3,100)
+        return data[1,:,:].reshape(1,3,100)
     
     def predict(self,model,data):
         with torch.no_grad():
