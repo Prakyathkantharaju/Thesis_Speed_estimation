@@ -15,7 +15,7 @@ def label2speed(label):
     elif label==1:
         label=1.25
     elif label==2:
-        label=1.47
+        label=1.48
     elif label==3:
         label=0.50
     elif label==4:
@@ -29,6 +29,7 @@ def split(data,label,window=4,interval=0.25,sample_rate=148,vel_pos_flag=False,v
     label=label2speed(label)
     w_samples =int(window*sample_rate)
     X=np.array([data[-w_samples+i:i] for i in range(w_samples,data.shape[0]-w_samples,int(interval*sample_rate))])
+    X=X[:,:,0].reshape(-1,w_samples,1) 
     Y=np.ones(X.shape[0])*label
     
     if vel_pos_flag:
@@ -78,7 +79,7 @@ def preprocess():
 
     #map={1:1,2:2,3:0,4:1,5:2,6:0,7:1,8:2,9:0,10:1,11:2,12:0}
     map={10:1,11:1,12:0,13:2}
-    X=np.empty((1,1*100,3))
+    X=np.empty((1,1*100,1))
     Y=np.empty((1))
     win=0.50
     for i in map.keys():
@@ -126,6 +127,21 @@ def preprocess():
         X=np.concatenate((X,x),axis=0)
         Y=np.concatenate((Y,y),axis=0)
 
+    for i in range(2,13):
+        with open(f"../../../Recordings/sub-P006/pickled_data/Session1/{i}.pickle",'rb') as f:
+            data=pickle.load(f)
+        x,y=split(data['data'],data['label'],window=win,sample_rate=200,vert_acc_i=0)
+        X=np.concatenate((X,x),axis=0)
+        Y=np.concatenate((Y,y),axis=0)
+
+    for i in range(4,15):
+        with open(f"../../../Recordings/sub-P007/pickled_data/Session_2/{i}.pickle",'rb') as f:
+            data=pickle.load(f)
+        x,y=split(data['data'],data['label'],window=win,sample_rate=200,vert_acc_i=0)
+        X=np.concatenate((X,x),axis=0)
+        Y=np.concatenate((Y,y),axis=0)
+
+    """
     for i in range(1,14):
         with open(f"../../../Recordings/sub-P003/aug_data/{i}_augmented.pickle",'rb') as f:
             data=pickle.load(f)
@@ -157,7 +173,7 @@ def preprocess():
         x,y=split(data['data'],data['label'],window=win,sample_rate=200,vert_acc_i=0)
         X=np.concatenate((X,x),axis=0)
         Y=np.concatenate((Y,y),axis=0)
-
+    """
 
     
     print(f"Shape of X is {X.shape} \n Label is {Y.shape} ")
@@ -167,13 +183,13 @@ def preprocess():
         if sum(df[column].isna())!=0:
             print(sum(df[column].isna())/len(df[column]))
             df[column]=df[column].fillna(method='backfill')
-
+    
     X=df.to_numpy()
 
     norm=Normalizer()
     norm.fit(X)
     X=norm.transform(X)
-    X=X.reshape(X.shape[0],3,100)
+    X=X.reshape(X.shape[0],1,100)
     pickle.dump(norm,open('normalizer.pickle','wb'))
     return X,Y
 

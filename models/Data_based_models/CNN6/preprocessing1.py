@@ -15,7 +15,7 @@ def label2speed(label):
     elif label==1:
         label=1.25
     elif label==2:
-        label=1.47
+        label=1.48
     elif label==3:
         label=0.50
     elif label==4:
@@ -27,8 +27,9 @@ def label2speed(label):
 def split(data,label,window=4,interval=0.3,sample_rate=148,vel_pos_flag=False,vert_acc_i=1):
     
     label=label2speed(label)
-    w_samples =window*sample_rate
+    w_samples=int(window*sample_rate)
     X=np.array([data[-w_samples+i:i] for i in range(w_samples,data.shape[0]-w_samples,int(interval*sample_rate))])
+    #X=X[:,:,0].reshape(-1,w_samples,1)
     Y=np.ones(X.shape[0])*label
     
     if vel_pos_flag:
@@ -126,6 +127,26 @@ def preprocess():
         X=np.concatenate((X,x),axis=0)
         Y=np.concatenate((Y,y),axis=0)
 
+    for i in range(2,13):
+        with open(f"../../../Recordings/sub-P006/pickled_data/Session1/{i}.pickle",'rb') as f:
+            data=pickle.load(f)
+        x,y=split(data['data'],data['label'],window=1,sample_rate=200,vert_acc_i=0)
+        X=np.concatenate((X,x),axis=0)
+        Y=np.concatenate((Y,y),axis=0)
+    for i in range(4,15):
+        with open(f"../../../Recordings/sub-P007/pickled_data/Session_2/{i}.pickle",'rb') as f:
+            data=pickle.load(f)
+        x,y=split(data['data'],data['label'],window=1,sample_rate=200,vert_acc_i=0)
+        X=np.concatenate((X,x),axis=0)
+        Y=np.concatenate((Y,y),axis=0)
+
+    for i in range(9,23):
+        with open(f"../../../Recordings/sub-P005/pickled_data/{i}.pickle",'rb') as f:
+            data=pickle.load(f)
+        x,y=split(data['data'],data['label'],window=1,sample_rate=200,vert_acc_i=0)
+        X=np.concatenate((X,x),axis=0)
+        Y=np.concatenate((Y,y),axis=0)
+    """
     for i in range(1,14):
         with open(f"../../../Recordings/sub-P003/aug_data/{i}_augmented.pickle",'rb') as f:
             data=pickle.load(f)
@@ -150,7 +171,7 @@ def preprocess():
         X=np.concatenate((X,x),axis=0)
         Y=np.concatenate((Y,y),axis=0)
     
-    for i in range(2,23):
+    for i in range(9,23):
         with open(f"../../../Recordings/sub-P005/aug_data/{i}_augmented.pickle",'rb') as f:
             data=pickle.load(f)
         
@@ -158,7 +179,7 @@ def preprocess():
         X=np.concatenate((X,x),axis=0)
         Y=np.concatenate((Y,y),axis=0)
 
-
+    """
     
     print(f"Shape of X is {X.shape} \n Label is {Y.shape} ")
     X=X.reshape(X.shape[0],X.shape[1]*X.shape[2])
@@ -175,6 +196,7 @@ def preprocess():
     X=norm.transform(X)
     X=X.reshape(X.shape[0],3,200)
     pickle.dump(norm,open('normalizer.pickle','wb'))
+    pickle.dump({'X':X,"y":Y},open('data.pickle','wb'))
     return X,Y
 
 

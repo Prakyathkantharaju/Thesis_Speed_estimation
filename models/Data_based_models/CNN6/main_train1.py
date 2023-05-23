@@ -44,8 +44,8 @@ torch.manual_seed(42)
 
 criterion=nn.MSELoss()
 
-num_epochs=20
-batch_size=64
+num_epochs=40
+batch_size=128
 k=5
 splits=KFold(n_splits=k,shuffle=True,random_state=42)
 foldperf={}
@@ -62,7 +62,7 @@ for fold,(train_idx,val_idx) in enumerate(splits.split(np.arange(len(dataset))))
         train_loader=DataLoader(dataset,batch_size=batch_size,sampler=train_sampler)
         test_loader=DataLoader(dataset,batch_size=batch_size,sampler=test_sampler)
         
-        model=CNN(num_classes=1)
+        model=CNN(num_classes=1,input_features=3)
         model.to(device)
         optimizer=optim.Adam(model.parameters(),lr=3.5e-4)
 
@@ -89,5 +89,5 @@ for fold,(train_idx,val_idx) in enumerate(splits.split(np.arange(len(dataset))))
 
             pickle.dump(history,open('history.pickle','wb'))
 
-            if epoch>1 and test_acc>=history['test_acc'][-2]:
+            if epoch>15 and test_loss>0.002:
                 torch.save(model.state_dict(),f'model_{fold}_{epoch}.h5') 

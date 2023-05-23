@@ -34,8 +34,8 @@ norm=Normalizer()
 norm.fit(X)
 pickle.dump(norm,open('normalizer.pickle','wb'))
 X=norm.transform(X)
-X=X.reshape(-1,3,100)
-dataset=IMU(X,Y,size=100,num_features=3)
+X=X.reshape(-1,1,100)
+dataset=IMU(X,Y,size=100,num_features=1)
 
 # model load
 
@@ -44,7 +44,7 @@ torch.manual_seed(42)
 
 criterion=nn.MSELoss()
 
-num_epochs=30
+num_epochs=50
 batch_size=64
 k=5
 splits=KFold(n_splits=k,shuffle=True,random_state=42)
@@ -62,7 +62,7 @@ for fold,(train_idx,val_idx) in enumerate(splits.split(np.arange(len(dataset))))
         train_loader=DataLoader(dataset,batch_size=batch_size,sampler=train_sampler)
         test_loader=DataLoader(dataset,batch_size=batch_size,sampler=test_sampler)
         
-        model=CNN(num_classes=1)
+        model=CNN(input_features=1,num_classes=1)
         model.to(device)
         optimizer=optim.Adam(model.parameters(),lr=3.5e-4)
 
@@ -89,5 +89,5 @@ for fold,(train_idx,val_idx) in enumerate(splits.split(np.arange(len(dataset))))
 
             pickle.dump(history,open('history.pickle','wb'))
 
-            if epoch>1 and test_acc>=history['test_acc'][-2]:
+            if epoch>15 and test_loss<0.003:
                 torch.save(model.state_dict(),f'model_{fold}_{epoch}.h5') 
