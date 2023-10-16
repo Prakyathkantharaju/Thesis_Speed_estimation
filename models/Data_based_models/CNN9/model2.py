@@ -21,7 +21,7 @@ class CNN(nn.Module):
         self.num_classes=num_classes
         self.dropout=nn.Dropout(dropout)
         self.activation=nn.ReLU()
-        self.device=torch.device("cuda:0" if torch.cuda.is_available() else 'cpu')
+        self.device=torch.device('cpu')
         # Architecture
 
         self.conv1=nn.Conv1d(in_channels=self.in_channels,out_channels=64,kernel_size=5,stride=1,padding=2)
@@ -110,6 +110,7 @@ class CNN(nn.Module):
 
 
     def forward_run(self,x):
+        print(self.in_channels,self.in_length)
         x=torch.from_numpy(x.reshape(-1,self.in_channels,self.in_length)).float()
         x=x.to(self.device)
         y=self.forward(x)

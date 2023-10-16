@@ -35,11 +35,14 @@ class Prediction():
     
     def get_data(self,acquisition,normalizer,data_length=200):
         data=acquisition.get_data(data_length)
+        # selecting one data only. testing with 0
         if data.shape[0]!=data_length:
             return None
+        data = data[:, 0]
         data=normalizer.transform(data.reshape(1,-1))
-        data=data.reshape(2,3,100)
-        return data[1,:,:].reshape(1,3,100)
+        # data=data.reshape(2,3,100)
+        data = data.reshape(1,1,200)
+        return data
     
     def predict(self,model,data):
         with torch.no_grad():
@@ -63,8 +66,10 @@ class Prediction():
 
     def output(self,model,normalizer,acquisition,Activity_pred):
         data=self.get_data(acquisition,normalizer)
+        
         if data is None:
             return 0
+        print(data.shape)
         pred=self.predict(model,data)
         self.buffer.append(pred)
         if Activity_pred==self.walking_index:
