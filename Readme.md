@@ -4,7 +4,7 @@
 
 1. Install python either through anaconda or python.org.
 2. Clone this repository either through git or by downloading the zip file.
-3. Navigate to the repository: `cd Activity_Speed_estimation`
+3. Open a terminal or cmd window and navigate to the repository.
 4. Install the required packages: `pip install -r requirements.txt`
 
 ## Running
