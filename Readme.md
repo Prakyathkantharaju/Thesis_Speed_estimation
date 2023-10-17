@@ -32,8 +32,11 @@ Please check if these stream are created in `lab-recorder`.
 python main.py
 ```
 You will see the following window appear.
+![](docs/images/main_ui.png)
 
 Please **press Normalize button while standing still for 5s.** Then click again to deselect it.
+The normalize button is shown in the figure below.
+![](docs/images/normalize_highlight.png)
 
 Then you activity classification should be working.
 
